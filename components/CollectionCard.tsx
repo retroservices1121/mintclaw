@@ -35,7 +35,7 @@ export default function CollectionCard({
     year: 'numeric',
   });
 
-  const moltbookUrl = agentId ? `https://www.moltbook.com/agents/${agentId}` : null;
+  const moltbookUrl = agentId ? `https://www.moltbook.com/u/${agentId}` : null;
 
   return (
     <Link href={`/collection/${address}`}>

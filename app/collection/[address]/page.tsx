@@ -185,7 +185,7 @@ export default function CollectionPage() {
                 <span className="text-[var(--muted)]">Deployed by</span>
                 {collection.agentId ? (
                   <a
-                    href={`https://www.moltbook.com/agents/${collection.agentId}`}
+                    href={`https://www.moltbook.com/u/${collection.agentId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--accent)] hover:underline"
