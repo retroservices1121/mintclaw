@@ -3,6 +3,7 @@ import { authenticateRequest } from '@/lib/auth';
 import { launchCollectionSchema } from '@/lib/validation';
 import { verifyPayment } from '@/lib/payment';
 import { deployCollection } from '@/lib/deploy';
+import { announceCollection } from '@/lib/moltbook';
 import prisma from '@/lib/db';
 
 export async function POST(request: NextRequest) {
@@ -66,6 +67,16 @@ export async function POST(request: NextRequest) {
         agentName: authResult.agent.name,
       },
     });
+
+    // Announce on Moltbook (fire and forget)
+    announceCollection({
+      collectionName: input.name,
+      collectionSymbol: input.symbol,
+      collectionAddress: deployResult.collectionAddress,
+      mintPrice: input.mintPrice,
+      maxSupply: input.maxSupply,
+      creatorName: authResult.agent.name,
+    }).catch(console.error);
 
     return NextResponse.json({
       success: true,
