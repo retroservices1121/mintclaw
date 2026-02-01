@@ -30,7 +30,11 @@ export async function validateMoltbookKey(apiKey: string): Promise<MoltbookAgent
       return null;
     }
 
-    const data = await res.json() as MoltbookAgent;
+    const response = await res.json() as { success: boolean; agent: MoltbookAgent };
+    if (!response.success || !response.agent) {
+      return null;
+    }
+    const data = response.agent;
 
     // Cache the successful validation
     validationCache.set(apiKey, {
