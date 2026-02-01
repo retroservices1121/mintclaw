@@ -2,9 +2,9 @@
 
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { formatEther } from 'viem';
 import MintButton from '@/components/MintButton';
 import { getExplorerUrl, CHAINS } from '@/lib/constants';
+import { USDC_DECIMALS } from '@/lib/contracts';
 
 interface CollectionData {
   id: string;
@@ -80,7 +80,7 @@ export default function CollectionPage() {
   const formattedPrice =
     collection.mintPrice === '0'
       ? 'Free'
-      : `${formatEther(BigInt(collection.mintPrice))} ETH`;
+      : `$${(Number(collection.mintPrice) / 10 ** USDC_DECIMALS).toFixed(2)} USDC`;
 
   const royaltyPercent = collection.royaltyBps / 100;
 

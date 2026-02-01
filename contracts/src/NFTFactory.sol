@@ -5,6 +5,7 @@ import "./AgentNFT.sol";
 
 contract NFTFactory {
     address public platformFeeRecipient;
+    address public usdc;
     address public owner;
 
     mapping(address => bool) public isDeployedCollection;
@@ -27,9 +28,10 @@ contract NFTFactory {
         _;
     }
 
-    constructor(address platformFeeRecipient_) {
+    constructor(address platformFeeRecipient_, address usdcAddress_) {
         owner = msg.sender;
         platformFeeRecipient = platformFeeRecipient_;
+        usdc = usdcAddress_;
     }
 
     function createCollection(
@@ -37,7 +39,7 @@ contract NFTFactory {
         string memory symbol,
         string memory baseURI,
         uint256 maxSupply,
-        uint256 mintPrice,
+        uint256 mintPrice, // in USDC (6 decimals), e.g., 1000000 = $1
         uint96 royaltyBps
     ) external returns (address) {
         require(bytes(name).length > 0, "Name required");
@@ -53,7 +55,8 @@ contract NFTFactory {
             mintPrice,
             msg.sender, // creator
             platformFeeRecipient,
-            royaltyBps
+            royaltyBps,
+            usdc
         );
 
         address collectionAddress = address(collection);

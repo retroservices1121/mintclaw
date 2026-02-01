@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatEther } from 'viem';
+import { USDC_DECIMALS } from '@/lib/contracts';
 
 interface CollectionCardProps {
   address: string;
@@ -27,7 +27,7 @@ export default function CollectionCard({
   createdAt,
 }: CollectionCardProps) {
   const formattedPrice =
-    mintPrice === '0' ? 'Free' : `${formatEther(BigInt(mintPrice))} ETH`;
+    mintPrice === '0' ? 'Free' : `$${(Number(mintPrice) / 10 ** USDC_DECIMALS).toFixed(2)} USDC`;
 
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     month: 'short',

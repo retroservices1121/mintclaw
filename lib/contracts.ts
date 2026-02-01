@@ -1,6 +1,52 @@
+// USDC addresses on Base
+export const USDC_ADDRESSES: Record<number, string> = {
+  8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // Base Mainnet
+  84532: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia
+};
+
+export const USDC_ABI = [
+  {
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+    ],
+    name: 'allowance',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'account', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+
 export const FACTORY_ABI = [
   {
-    inputs: [{ name: 'platformFeeRecipient_', type: 'address' }],
+    inputs: [
+      { name: 'platformFeeRecipient_', type: 'address' },
+      { name: 'usdcAddress_', type: 'address' },
+    ],
     stateMutability: 'nonpayable',
     type: 'constructor',
   },
@@ -61,6 +107,13 @@ export const FACTORY_ABI = [
   },
   {
     inputs: [],
+    name: 'usdc',
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'owner',
     outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
@@ -73,7 +126,7 @@ export const AGENT_NFT_ABI = [
     inputs: [{ name: 'quantity', type: 'uint256' }],
     name: 'mint',
     outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -135,6 +188,13 @@ export const AGENT_NFT_ABI = [
   {
     inputs: [],
     name: 'owner',
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'usdc',
     outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
     type: 'function',
@@ -208,5 +268,16 @@ export function getFactoryAddress(chainId: number): string {
   return address;
 }
 
+export function getUsdcAddress(chainId: number): string {
+  const address = USDC_ADDRESSES[chainId];
+  if (!address) {
+    throw new Error(`USDC address not configured for chain ${chainId}`);
+  }
+  return address;
+}
+
 export const SUPPORTED_CHAIN_IDS = [8453, 84532] as const;
 export type SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number];
+
+// USDC has 6 decimals
+export const USDC_DECIMALS = 6;

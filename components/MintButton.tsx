@@ -1,19 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useAccount,
   useConnect,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useReadContract,
+  useChainId,
 } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { parseEther, formatEther, type Address } from 'viem';
-import { AGENT_NFT_ABI } from '@/lib/contracts';
+import { type Address } from 'viem';
+import { AGENT_NFT_ABI, USDC_ABI, USDC_ADDRESSES, USDC_DECIMALS } from '@/lib/contracts';
 
 interface MintButtonProps {
   collectionAddress: string;
-  mintPrice: string;
+  mintPrice: string; // in USDC smallest unit (6 decimals)
   maxSupply: number;
   totalMinted: number;
   mintingEnabled: boolean;
@@ -29,48 +31,114 @@ export default function MintButton({
   const [quantity, setQuantity] = useState(1);
   const { address, isConnected } = useAccount();
   const { connect, isPending: isConnecting } = useConnect();
+  const chainId = useChainId();
 
-  const { data: hash, writeContract, isPending: isWriting, error: writeError } = useWriteContract();
+  const usdcAddress = USDC_ADDRESSES[chainId] as Address;
+  const totalCost = BigInt(mintPrice) * BigInt(quantity);
+  const formattedPrice = (Number(totalCost) / 10 ** USDC_DECIMALS).toFixed(2);
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
+  // Check USDC allowance
+  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+    address: usdcAddress,
+    abi: USDC_ABI,
+    functionName: 'allowance',
+    args: address ? [address, collectionAddress as Address] : undefined,
   });
 
-  const totalPrice = BigInt(mintPrice) * BigInt(quantity);
-  const formattedPrice = formatEther(totalPrice);
+  // Check USDC balance
+  const { data: usdcBalance } = useReadContract({
+    address: usdcAddress,
+    abi: USDC_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+  });
+
+  const needsApproval = allowance !== undefined && allowance < totalCost;
+  const hasInsufficientBalance = usdcBalance !== undefined && usdcBalance < totalCost;
+
+  // Approve USDC
+  const {
+    data: approveHash,
+    writeContract: approve,
+    isPending: isApproving,
+    error: approveError,
+  } = useWriteContract();
+
+  const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } =
+    useWaitForTransactionReceipt({ hash: approveHash });
+
+  // Mint NFT
+  const {
+    data: mintHash,
+    writeContract: mint,
+    isPending: isMinting,
+    error: mintError,
+  } = useWriteContract();
+
+  const { isLoading: isMintConfirming, isSuccess: isMintSuccess } =
+    useWaitForTransactionReceipt({ hash: mintHash });
+
+  // Refetch allowance after approval
+  useEffect(() => {
+    if (isApproveSuccess) {
+      refetchAllowance();
+    }
+  }, [isApproveSuccess, refetchAllowance]);
+
   const remaining = maxSupply === 0 ? Infinity : maxSupply - totalMinted;
   const isSoldOut = maxSupply > 0 && totalMinted >= maxSupply;
+  const isFree = mintPrice === '0';
 
-  const handleMint = async () => {
+  const handleApprove = () => {
+    approve({
+      address: usdcAddress,
+      abi: USDC_ABI,
+      functionName: 'approve',
+      args: [collectionAddress as Address, totalCost],
+    });
+  };
+
+  const handleMint = () => {
     if (!isConnected) {
       connect({ connector: injected() });
       return;
     }
 
-    writeContract({
+    mint({
       address: collectionAddress as Address,
       abi: AGENT_NFT_ABI,
       functionName: 'mint',
       args: [BigInt(quantity)],
-      value: totalPrice,
     });
   };
 
-  const getButtonText = () => {
-    if (!isConnected) return 'Connect Wallet';
-    if (!mintingEnabled) return 'Minting Paused';
-    if (isSoldOut) return 'Sold Out';
-    if (isWriting) return 'Confirm in Wallet...';
-    if (isConfirming) return 'Minting...';
-    if (isSuccess) return 'Minted!';
-    return `Mint ${quantity} for ${formattedPrice} ETH`;
+  const getButtonState = () => {
+    if (!isConnected) return { text: 'Connect Wallet', action: handleMint, disabled: false };
+    if (!mintingEnabled) return { text: 'Minting Paused', action: () => {}, disabled: true };
+    if (isSoldOut) return { text: 'Sold Out', action: () => {}, disabled: true };
+    if (hasInsufficientBalance) return { text: 'Insufficient USDC', action: () => {}, disabled: true };
+
+    if (isApproving || isApproveConfirming) {
+      return { text: 'Approving USDC...', action: () => {}, disabled: true };
+    }
+
+    if (isMinting || isMintConfirming) {
+      return { text: 'Minting...', action: () => {}, disabled: true };
+    }
+
+    if (isMintSuccess) {
+      return { text: 'Minted!', action: () => {}, disabled: true };
+    }
+
+    if (!isFree && needsApproval) {
+      return { text: `Approve USDC`, action: handleApprove, disabled: false };
+    }
+
+    const priceText = isFree ? 'Free' : `$${formattedPrice} USDC`;
+    return { text: `Mint ${quantity} for ${priceText}`, action: handleMint, disabled: false };
   };
 
-  const isDisabled =
-    (isConnected && !mintingEnabled) ||
-    isSoldOut ||
-    isWriting ||
-    isConfirming;
+  const buttonState = getButtonState();
 
   return (
     <div className="space-y-4">
@@ -119,36 +187,36 @@ export default function MintButton({
         </div>
       )}
 
-      {/* Mint button */}
+      {/* Main button */}
       <button
-        onClick={handleMint}
-        disabled={isDisabled}
+        onClick={buttonState.action}
+        disabled={buttonState.disabled}
         className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${
-          isDisabled
+          buttonState.disabled
             ? 'bg-[var(--card-border)] text-[var(--muted)] cursor-not-allowed'
-            : isSuccess
+            : isMintSuccess
             ? 'bg-green-600 text-white'
             : 'btn-primary'
         }`}
       >
-        {getButtonText()}
+        {buttonState.text}
       </button>
 
-      {/* Error message */}
-      {writeError && (
+      {/* Error messages */}
+      {(approveError || mintError) && (
         <p className="text-red-500 text-sm">
-          {writeError.message.includes('User rejected')
+          {(approveError || mintError)?.message?.includes('User rejected')
             ? 'Transaction cancelled'
-            : 'Mint failed. Please try again.'}
+            : 'Transaction failed. Please try again.'}
         </p>
       )}
 
       {/* Success message */}
-      {isSuccess && hash && (
+      {isMintSuccess && mintHash && (
         <p className="text-green-500 text-sm">
           Successfully minted! View on{' '}
           <a
-            href={`https://basescan.org/tx/${hash}`}
+            href={`https://sepolia.basescan.org/tx/${mintHash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="underline"
@@ -156,6 +224,13 @@ export default function MintButton({
             BaseScan
           </a>
         </p>
+      )}
+
+      {/* USDC Balance info */}
+      {isConnected && usdcBalance !== undefined && (
+        <div className="text-center text-[var(--muted)] text-sm">
+          Your USDC balance: ${(Number(usdcBalance) / 10 ** USDC_DECIMALS).toFixed(2)}
+        </div>
       )}
 
       {/* Supply info */}
