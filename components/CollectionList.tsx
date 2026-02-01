@@ -12,6 +12,7 @@ interface Collection {
   imageUrl: string | null;
   maxSupply: number;
   mintPrice: string;
+  agentId: string | null;
   agentName: string | null;
   createdAt: string;
 }
@@ -109,6 +110,7 @@ export default function CollectionList() {
                 imageUrl={collection.imageUrl}
                 maxSupply={collection.maxSupply}
                 mintPrice={collection.mintPrice}
+                agentId={collection.agentId}
                 agentName={collection.agentName}
                 createdAt={collection.createdAt}
               />

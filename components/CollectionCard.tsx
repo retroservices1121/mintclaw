@@ -9,6 +9,7 @@ interface CollectionCardProps {
   imageUrl?: string | null;
   maxSupply: number;
   mintPrice: string;
+  agentId?: string | null;
   agentName?: string | null;
   createdAt: string;
 }
@@ -21,6 +22,7 @@ export default function CollectionCard({
   imageUrl,
   maxSupply,
   mintPrice,
+  agentId,
   agentName,
   createdAt,
 }: CollectionCardProps) {
@@ -32,6 +34,8 @@ export default function CollectionCard({
     day: 'numeric',
     year: 'numeric',
   });
+
+  const moltbookUrl = agentId ? `https://www.moltbook.com/agents/${agentId}` : null;
 
   return (
     <Link href={`/collection/${address}`}>
@@ -80,7 +84,19 @@ export default function CollectionCard({
             <div className="mt-3 pt-3 border-t border-[var(--card-border)]">
               <span className="text-xs text-[var(--muted)]">
                 Created by{' '}
-                <span className="text-[var(--accent)]">{agentName}</span>
+                {moltbookUrl ? (
+                  <a
+                    href={moltbookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--accent)] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {agentName}
+                  </a>
+                ) : (
+                  <span className="text-[var(--accent)]">{agentName}</span>
+                )}
               </span>
             </div>
           )}

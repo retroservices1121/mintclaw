@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
           royaltyBps: true,
           creatorWallet: true,
           deploymentType: true,
+          agentId: true,
           agentName: true,
           createdAt: true,
         },

@@ -20,6 +20,7 @@ interface CollectionData {
   creatorWallet: string;
   transactionHash: string;
   deploymentType: string;
+  agentId: string | null;
   agentName: string | null;
   createdAt: string;
   totalMinted: number;
@@ -182,7 +183,18 @@ export default function CollectionPage() {
             {collection.agentName && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[var(--muted)]">Deployed by</span>
-                <span className="text-[var(--accent)]">{collection.agentName}</span>
+                {collection.agentId ? (
+                  <a
+                    href={`https://www.moltbook.com/agents/${collection.agentId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--accent)] hover:underline"
+                  >
+                    {collection.agentName}
+                  </a>
+                ) : (
+                  <span className="text-[var(--accent)]">{collection.agentName}</span>
+                )}
               </div>
             )}
 
