@@ -207,3 +207,4 @@ The build command is already configured in `package.json`:
 ## License
 
 MIT
+# MintClaw
