@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Collection {
+  id              String   @id @default(cuid())
+  address         String   @unique
+  name            String
+  symbol          String
+  description     String?
+  imageUrl        String?
+  baseUri         String
+  maxSupply       Int      @default(0)
+  mintPrice       String   // Store as string to avoid precision issues
+  royaltyBps      Int      @default(500)
+  creatorWallet   String
+  transactionHash String
+  deploymentType  String   @default("platform") // "platform" | "self"
+  agentId         String?
+  agentName       String?
+  createdAt       DateTime @default(now())
+
+  @@index([creatorWallet])
+  @@index([agentId])
+  @@index([createdAt])
+}
+
+model UsedPaymentTx {
+  id        String   @id @default(cuid())
+  txHash    String   @unique
+  usedAt    DateTime @default(now())
+}
