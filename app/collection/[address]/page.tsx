@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useChainId } from 'wagmi';
 import MintButton from '@/components/MintButton';
+import OwnedNFTs from '@/components/OwnedNFTs';
 import { getExplorerUrl, CHAINS } from '@/lib/constants';
 import { USDC_DECIMALS } from '@/lib/contracts';
 
@@ -48,8 +49,9 @@ export default function CollectionPage() {
   });
 
   const handleMintSuccess = () => {
-    // Refetch collection data after successful mint
+    // Refetch collection data and owned NFTs after successful mint
     queryClient.invalidateQueries({ queryKey: ['collection', address, chainId] });
+    queryClient.invalidateQueries({ queryKey: ['ownedNFTs', address] });
   };
 
   if (isLoading) {
@@ -225,6 +227,12 @@ export default function CollectionPage() {
           </div>
         </div>
       </div>
+
+      {/* Owned NFTs */}
+      <OwnedNFTs
+        collectionAddress={collection.address}
+        collectionName={collection.name}
+      />
     </div>
   );
 }
