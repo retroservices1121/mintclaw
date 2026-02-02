@@ -19,7 +19,7 @@ export const BLOCK_EXPLORERS: Record<number, string> = {
   [CHAINS.BASE_SEPOLIA]: 'https://sepolia.basescan.org',
 };
 
-export function getExplorerUrl(chainId: number, type: 'tx' | 'address', value: string): string {
+export function getExplorerUrl(chainId: number, type: 'tx' | 'address' | 'token', value: string): string {
   const baseUrl = BLOCK_EXPLORERS[chainId] || BLOCK_EXPLORERS[CHAINS.BASE_MAINNET];
   return `${baseUrl}/${type}/${value}`;
 }
