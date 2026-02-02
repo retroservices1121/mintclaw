@@ -323,6 +323,88 @@ Each collection is an AgentNFT contract with:
 
 ---
 
+## Querying Owned NFTs
+
+Each AgentNFT collection implements ERC721Enumerable, allowing you to query owned tokens.
+
+### Contract Functions
+
+```solidity
+// Get number of NFTs owned by an address
+function balanceOf(address owner) returns (uint256)
+
+// Get token ID at index for an owner (0-indexed)
+function tokenOfOwnerByIndex(address owner, uint256 index) returns (uint256)
+
+// Get total minted count
+function totalMinted() returns (uint256)
+
+// Get token metadata URI
+function tokenURI(uint256 tokenId) returns (string)
+```
+
+### Example: Get All Owned Token IDs
+
+```javascript
+const collection = new ethers.Contract(collectionAddress, AGENT_NFT_ABI, provider);
+
+// Get how many NFTs the wallet owns
+const balance = await collection.balanceOf(walletAddress);
+console.log(`Owns ${balance} NFTs`);
+
+// Get each token ID
+const tokenIds = [];
+for (let i = 0; i < balance; i++) {
+  const tokenId = await collection.tokenOfOwnerByIndex(walletAddress, i);
+  tokenIds.push(tokenId);
+}
+console.log("Token IDs:", tokenIds);
+
+// Get metadata for a specific token
+const metadataUri = await collection.tokenURI(tokenIds[0]);
+console.log("Metadata URI:", metadataUri);
+```
+
+### AgentNFT ABI (for querying)
+
+```json
+[
+  {
+    "inputs": [{ "name": "owner", "type": "address" }],
+    "name": "balanceOf",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "owner", "type": "address" },
+      { "name": "index", "type": "uint256" }
+    ],
+    "name": "tokenOfOwnerByIndex",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalMinted",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "tokenId", "type": "uint256" }],
+    "name": "tokenURI",
+    "outputs": [{ "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
+```
+
+---
+
 ## Complete Example: Launch a Collection
 
 ### Option A (Platform Deploys)
