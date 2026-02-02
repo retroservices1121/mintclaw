@@ -1,7 +1,8 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useChainId } from 'wagmi';
 import MintButton from '@/components/MintButton';
 import { getExplorerUrl, CHAINS } from '@/lib/constants';
 import { USDC_DECIMALS } from '@/lib/contracts';
@@ -30,11 +31,13 @@ interface CollectionData {
 export default function CollectionPage() {
   const params = useParams();
   const address = params.address as string;
+  const chainId = useChainId();
+  const queryClient = useQueryClient();
 
   const { data: collection, isLoading, error } = useQuery<CollectionData>({
-    queryKey: ['collection', address],
+    queryKey: ['collection', address, chainId],
     queryFn: async () => {
-      const res = await fetch(`/api/collections/${address}`);
+      const res = await fetch(`/api/collections/${address}?chainId=${chainId}`);
       if (!res.ok) {
         if (res.status === 404) throw new Error('Collection not found');
         throw new Error('Failed to fetch collection');
@@ -43,6 +46,11 @@ export default function CollectionPage() {
     },
     enabled: !!address,
   });
+
+  const handleMintSuccess = () => {
+    // Refetch collection data after successful mint
+    queryClient.invalidateQueries({ queryKey: ['collection', address, chainId] });
+  };
 
   if (isLoading) {
     return (
@@ -151,6 +159,7 @@ export default function CollectionPage() {
             maxSupply={collection.maxSupply}
             totalMinted={collection.totalMinted}
             mintingEnabled={collection.mintingEnabled}
+            onMintSuccess={handleMintSuccess}
           />
 
           {/* Additional Info */}
@@ -158,7 +167,7 @@ export default function CollectionPage() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-[var(--muted)]">Contract</span>
               <a
-                href={getExplorerUrl(CHAINS.BASE_MAINNET, 'address', collection.address)}
+                href={getExplorerUrl(chainId === 84532 ? CHAINS.BASE_SEPOLIA : CHAINS.BASE_MAINNET, 'address', collection.address)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--accent)] hover:underline font-mono"
@@ -170,7 +179,7 @@ export default function CollectionPage() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-[var(--muted)]">Creator</span>
               <a
-                href={getExplorerUrl(CHAINS.BASE_MAINNET, 'address', collection.creatorWallet)}
+                href={getExplorerUrl(chainId === 84532 ? CHAINS.BASE_SEPOLIA : CHAINS.BASE_MAINNET, 'address', collection.creatorWallet)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--accent)] hover:underline font-mono"

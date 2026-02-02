@@ -19,6 +19,7 @@ interface MintButtonProps {
   maxSupply: number;
   totalMinted: number;
   mintingEnabled: boolean;
+  onMintSuccess?: () => void;
 }
 
 export default function MintButton({
@@ -27,6 +28,7 @@ export default function MintButton({
   maxSupply,
   totalMinted,
   mintingEnabled,
+  onMintSuccess,
 }: MintButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const { address, isConnected } = useAccount();
@@ -84,6 +86,13 @@ export default function MintButton({
       refetchAllowance();
     }
   }, [isApproveSuccess, refetchAllowance]);
+
+  // Call onMintSuccess callback after successful mint
+  useEffect(() => {
+    if (isMintSuccess && onMintSuccess) {
+      onMintSuccess();
+    }
+  }, [isMintSuccess, onMintSuccess]);
 
   const remaining = maxSupply === 0 ? Infinity : maxSupply - totalMinted;
   const isSoldOut = maxSupply > 0 && totalMinted >= maxSupply;
