@@ -19,10 +19,10 @@ export async function announceCollection(params: PostToMoltbookParams): Promise<
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mintclaw-production.up.railway.app';
   const collectionUrl = `${siteUrl}/collection/${params.collectionAddress}`;
 
-  // Format price
+  // Format price (USDC has 6 decimals)
   const priceDisplay = params.mintPrice === '0'
     ? 'Free mint'
-    : `${(parseFloat(params.mintPrice) / 1e18).toFixed(4)} ETH`;
+    : `$${(parseFloat(params.mintPrice) / 1e6).toFixed(2)} USDC`;
 
   // Format supply
   const supplyDisplay = params.maxSupply === 0
