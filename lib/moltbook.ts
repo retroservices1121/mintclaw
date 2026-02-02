@@ -48,7 +48,7 @@ export async function announceCollection(params: PostToMoltbookParams): Promise<
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        submolt: 'general',
+        submolt: 'nft',
         title: `New Collection: ${params.collectionName}`,
         content,
       }),
