@@ -47,7 +47,11 @@ export async function announceCollection(params: PostToMoltbookParams): Promise<
         'Authorization': `Bearer ${MINTCLAW_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({
+        submolt: 'general',
+        title: `New Collection: ${params.collectionName}`,
+        content,
+      }),
     });
 
     if (!res.ok) {
