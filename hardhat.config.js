@@ -20,5 +20,10 @@ module.exports = {
       url: "https://sepolia.base.org",
       accounts: ["0x2b1be1f1f8bf33213d1369ff00b0faffdda05346cf64dce73808cb192a27305d"],
     },
+    monadTestnet: {
+      url: "https://testnet-rpc.monad.xyz",
+      chainId: 10143,
+      accounts: ["0x2b1be1f1f8bf33213d1369ff00b0faffdda05346cf64dce73808cb192a27305d"],
+    },
   },
 };

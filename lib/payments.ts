@@ -1,7 +1,30 @@
-import { createPublicClient, createWalletClient, http, parseAbi } from 'viem';
+import { createPublicClient, createWalletClient, http, parseAbi, defineChain } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia, base } from 'viem/chains';
 import { CHAINS, PAYMENTS_ADDRESSES, USDC_ADDRESSES } from './constants';
+
+// Define Monad Testnet for viem
+const monadTestnet = defineChain({
+  id: 10143,
+  name: 'Monad Testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Monad',
+    symbol: 'MON',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://testnet-rpc.monad.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Monad Explorer',
+      url: 'https://testnet.monadexplorer.com',
+    },
+  },
+  testnet: true,
+});
 
 // MintClawPayments ABI (subset for API operations)
 export const PAYMENTS_ABI = parseAbi([
@@ -58,13 +81,25 @@ export const ESCROW_STATE_NAMES: Record<number, string> = {
 };
 
 function getChain(chainId: number) {
-  return chainId === CHAINS.BASE_MAINNET ? base : baseSepolia;
+  switch (chainId) {
+    case CHAINS.BASE_MAINNET:
+      return base;
+    case CHAINS.MONAD_TESTNET:
+      return monadTestnet;
+    default:
+      return baseSepolia;
+  }
 }
 
 function getRpcUrl(chainId: number) {
-  return chainId === CHAINS.BASE_MAINNET
-    ? process.env.BASE_RPC_URL || 'https://mainnet.base.org'
-    : process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org';
+  switch (chainId) {
+    case CHAINS.BASE_MAINNET:
+      return process.env.BASE_RPC_URL || 'https://mainnet.base.org';
+    case CHAINS.MONAD_TESTNET:
+      return 'https://testnet-rpc.monad.xyz';
+    default:
+      return process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org';
+  }
 }
 
 export function getPublicClient(chainId: number) {

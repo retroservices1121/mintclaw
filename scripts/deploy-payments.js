@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 // USDC addresses
 const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const USDC_MONAD_TESTNET = "0x0000000000000000000000000000000000000000"; // TODO: Update with Monad USDC
+const USDC_MONAD_TESTNET = "0xf817257fed379853cde0fa4f97ab987181b1e5ea"; // Monad testnet USDC
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
