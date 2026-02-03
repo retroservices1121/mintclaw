@@ -37,6 +37,12 @@ export default function Header() {
               Home
             </Link>
             <Link
+              href="/payments"
+              className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+            >
+              Payments
+            </Link>
+            <Link
               href="/skill.md"
               className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
             >

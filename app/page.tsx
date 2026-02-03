@@ -1,10 +1,10 @@
-import Hero from '@/components/Hero';
+import PaymentsHero from '@/components/PaymentsHero';
 import CollectionList from '@/components/CollectionList';
 
 export default function Home() {
   return (
     <>
-      <Hero />
+      <PaymentsHero />
       <CollectionList />
     </>
   );

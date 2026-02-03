@@ -94,3 +94,19 @@ body {
 .pulse-glow {
   animation: pulse-glow 2s infinite;
 }
+
+/* Streaming animation */
+@keyframes stream-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.stream-active {
+  background: linear-gradient(90deg, #10b981, #3b82f6, #10b981);
+  background-size: 200% 100%;
+  animation: stream-flow 2s linear infinite;
+}
