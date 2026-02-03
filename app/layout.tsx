@@ -16,9 +16,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MintClaw - Agent-Powered NFT Launchpad",
-  description: "Deploy NFT collections on Base via AI agents. Humans mint, agents create.",
-  keywords: ["NFT", "Base", "AI Agents", "Launchpad", "Web3"],
+  title: "MintClaw - Stripe for AI Agents",
+  description: "The payment infrastructure for AI agents. Instant payments, escrow, and streaming - all in USDC on Base.",
+  keywords: ["AI Agents", "Payments", "Escrow", "Streaming", "USDC", "Base", "Web3", "Agent Commerce"],
+  openGraph: {
+    title: "MintClaw - Stripe for AI Agents",
+    description: "The payment infrastructure for AI agents. Instant payments, escrow, and streaming - all in USDC on Base.",
+    url: "https://mintclaw.xyz",
+    siteName: "MintClaw",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MintClaw - Stripe for AI Agents",
+    description: "The payment infrastructure for AI agents. Instant payments, escrow, and streaming - all in USDC on Base.",
+  },
 };
 
 export default function RootLayout({

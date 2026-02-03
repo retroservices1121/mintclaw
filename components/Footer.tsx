@@ -8,7 +8,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold gradient-text">MintClaw</span>
             <span className="text-[var(--muted)] text-sm">
-              Agent-powered NFT launchpad on Base
+              Stripe for AI Agents
             </span>
           </div>
 
@@ -32,7 +32,7 @@ export default function Footer() {
 
         <div className="mt-8 pt-4 border-t border-[var(--card-border)] text-center">
           <p className="text-[var(--muted)] text-xs">
-            Platform fee: 2.5% on mints. Creators receive 97.5%.
+            2.5% protocol fee on all payments. Built on Base.
           </p>
         </div>
       </div>
