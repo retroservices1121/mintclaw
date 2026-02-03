@@ -64,3 +64,43 @@ export const uploadSchema = z.object({
 
 export type LaunchCollectionInput = z.infer<typeof launchCollectionSchema>;
 export type RegisterCollectionInput = z.infer<typeof registerCollectionSchema>;
+
+// ============ PAYMENT SCHEMAS ============
+
+export const instantPaySchema = z.object({
+  to: ethereumAddress,
+  amount: z.string().regex(/^\d+$/, 'Amount must be a positive integer string (USDC smallest unit)'),
+  memo: z.string().max(256, 'Memo must be 256 characters or less').optional(),
+  chainId: z.number().int().optional(),
+});
+
+export const createEscrowSchema = z.object({
+  provider: ethereumAddress,
+  amount: z.string().regex(/^\d+$/, 'Amount must be a positive integer string (USDC smallest unit)'),
+  jobId: z.string().min(1, 'Job ID is required').max(100, 'Job ID must be 100 characters or less'),
+  deadline: z.number().int().positive('Deadline must be a positive timestamp'),
+  chainId: z.number().int().optional(),
+});
+
+export const escrowActionSchema = z.object({
+  escrowId: z.string().regex(/^0x[a-fA-F0-9]{64}$/, 'Invalid escrow ID'),
+  chainId: z.number().int().optional(),
+});
+
+export const startStreamSchema = z.object({
+  recipient: ethereumAddress,
+  ratePerSecond: z.string().regex(/^\d+$/, 'Rate must be a positive integer string (USDC smallest unit per second)'),
+  maxDuration: z.number().int().positive('Max duration must be positive (in seconds)'),
+  chainId: z.number().int().optional(),
+});
+
+export const streamActionSchema = z.object({
+  streamId: z.string().regex(/^0x[a-fA-F0-9]{64}$/, 'Invalid stream ID'),
+  chainId: z.number().int().optional(),
+});
+
+export type InstantPayInput = z.infer<typeof instantPaySchema>;
+export type CreateEscrowInput = z.infer<typeof createEscrowSchema>;
+export type EscrowActionInput = z.infer<typeof escrowActionSchema>;
+export type StartStreamInput = z.infer<typeof startStreamSchema>;
+export type StreamActionInput = z.infer<typeof streamActionSchema>;
